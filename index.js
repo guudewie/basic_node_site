@@ -1,28 +1,42 @@
-var http = require("http");
-var url = require("url");
-var fs = require("fs");
+const express = require("express");
+const path = require("path");
+const app = express();
+const port = 3000;
 
-const page404 = fs.readFileSync("404.html", "utf-8", (err, data) => {
-  if (err) throw err;
-  return data;
+app.get("/", (req, res) => {
+  const filePath = path.join(__dirname, "./index.html");
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      res.status(500).send("An error occurred while sending the file.");
+    }
+  });
+});
+app.get("/about", (req, res) => {
+  const filePath = path.join(__dirname, "./about.html");
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      res.status(500).send("An error occurred while sending the file.");
+    }
+  });
+});
+app.get("/contact-me", (req, res) => {
+  const filePath = path.join(__dirname, "./contact-me.html");
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      res.status(500).send("An error occurred while sending the file.");
+    }
+  });
 });
 
-http
-  .createServer(function (req, res) {
-    var q = url.parse(req.url, true);
-    var filename;
-    if (q.pathname === "/") filename = "index.html";
-    else filename = "." + q.pathname + ".html";
+app.use((req, res, next) => {
+  const filePath = path.join(__dirname, "./404.html");
+  res.status(404).sendFile(filePath, (err) => {
+    if (err) {
+      res.status(500).send("An error occurred while sending the 404 page.");
+    }
+  });
+});
 
-    fs.readFile(filename, function (err, data) {
-      if (err) {
-        res.writeHead(404, { "Content-Type": "text/html" });
-        res.write(page404);
-        return res.end();
-      }
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.write(data);
-      return res.end();
-    });
-  })
-  .listen(8080);
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}!`);
+});
